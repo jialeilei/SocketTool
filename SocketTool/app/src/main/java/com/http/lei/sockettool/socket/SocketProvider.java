@@ -1,5 +1,6 @@
 package com.http.lei.sockettool.socket;
 
+import com.http.lei.sockettool.util.LogTool;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -41,13 +42,27 @@ public class SocketProvider {
 
 
     /**
+     * @param host
      * @param port
      * @param data
-     * @param host
      * @param callBack
      */
-    public static void getUdpConnect(int port,String data,String host,UdpCallBack callBack){
-        getInstance()._getUdpConnect(port, data, host, callBack);
+    public static void getUdpConnect(String host,int port,String data,UdpCallBack callBack){
+        getInstance()._getUdpConnect(host, port, data, callBack);
+    }
+
+    /**
+     * @param host
+     * @param port
+     * @param data
+     * @param callBack
+     */
+    public static void getTcpConnect(String host,int port,String data,UdpCallBack callBack){
+        getInstance()._getTcpConnect(host, port, data, callBack);
+    }
+
+    private void _getTcpConnect(String host, int port, String data, UdpCallBack callBack) {
+        WorkStation.add(new TcpRunnable(host, port, data, callBack));
     }
 
     public static void close(){
@@ -55,6 +70,7 @@ public class SocketProvider {
     }
 
     private void _close() {
+        LogTool.d("close socket");
         if (socketUdp != null){
             socketUdp.close();
         }else if (socketTcp != null){
@@ -66,14 +82,32 @@ public class SocketProvider {
         }
     }
 
-    private void _getUdpConnect(int port,String data,String host,UdpCallBack callBack){
+    /*private void _getTcpConnect(String host,int port,String data,UdpCallBack callBack) {
+        try {
+            socketTcp = new Socket(host, port);
+            SocketUtil util = new SocketUtil(socketTcp);
+            util.sendData(data);
 
+            boolean receiveState = true;
+            while (receiveState){
+                String str = util.receiveData();
+                callBack.receive(str);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
+
+    private void _getUdpConnect(String host,int port,String data,UdpCallBack callBack){
+        WorkStation.add(new UdpRunnable(host, port, data, callBack));
+    }
+
+   /* private void _getUdpConnect(String host,int port,String data,UdpCallBack callBack){
         try {
             InetAddress address = InetAddress.getByName(host);
             byte[] bytes = data.getBytes();
             DatagramPacket packet = new DatagramPacket(bytes,bytes.length,address,port);
             socketUdp = new DatagramSocket();
-
             //send data
             socketUdp.send(packet);
             System.out.println("已经发送完成");
@@ -82,12 +116,14 @@ public class SocketProvider {
             while (send){
                 byte[] receiveBytes = new byte[1024];
                 DatagramPacket receivePacket = new DatagramPacket(receiveBytes,receiveBytes.length);
+                System.out.println("等待服务器数据：");
                 socketUdp.receive(receivePacket);
                 String responseStr = new String(receiveBytes,0,receiveBytes.length);
                 callBack.receive(responseStr);
-                System.out.println("我是客户端，服务器说：" + responseStr);
+                System.out.println("服务器返回数据：" + responseStr);
+                send = false;
             }
-
+            _close();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (SocketException e) {
@@ -95,9 +131,8 @@ public class SocketProvider {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
+*/
 
 
 }

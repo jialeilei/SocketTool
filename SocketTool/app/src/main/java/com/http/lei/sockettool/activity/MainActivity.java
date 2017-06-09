@@ -12,11 +12,10 @@ import com.http.lei.sockettool.socket.UdpCallBack;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView tvShow;
-    Button btnShow;
-    int PORT = 12345;
-    String HOST="192.168.31.237";
-
+    private TextView tvShow;
+    private Button btnUdp, btnTcp;
+    private int PORT = 12345;
+    private String HOST="10.0.0.14";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,33 +26,47 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         tvShow = (TextView) findViewById(R.id.tvShow);
-        btnShow = (Button) findViewById(R.id.btnShow);
+        btnUdp = (Button) findViewById(R.id.btnShow);
+        btnTcp = (Button) findViewById(R.id.btnTcp);
 
-        btnShow.setOnClickListener(new View.OnClickListener() {
+        btnUdp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i("main", " start ");
-                mThread.start();
+                //mThread.start();
+                SocketProvider.getUdpConnect(HOST, PORT, "hello", new UdpCallBack() {
+                    @Override
+                    public void receive(String str) {
+                        Log.i("main", " " + str);
+                        //tvShow.setText(str+"");
+                    }
+
+                    @Override
+                    public void isConnect(boolean state) {
+                        Log.i("main", " " + state);
+                        //tvShow.setText(" "+ state);
+                    }
+                });
+            }
+        });
+        
+        btnTcp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SocketProvider.getTcpConnect(HOST, PORT, "hello,tcp", new UdpCallBack() {
+                    @Override
+                    public void receive(String str) {
+                        Log.i("main", " tcp: " + str);
+                    }
+
+                    @Override
+                    public void isConnect(boolean state) {
+                        Log.i("main", " " + state);
+                    }
+                });
             }
         });
     }
 
-    Thread mThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            SocketProvider.getUdpConnect(PORT, "hello", HOST, new UdpCallBack() {
-                @Override
-                public void receive(String str) {
-                    Log.i("main", " " + str);
-                    //tvShow.setText(str+"");
-                }
-
-                @Override
-                public void isConnect(boolean state) {
-                    Log.i("main", " " + state);
-                    //tvShow.setText(" "+ state);
-                }
-            });
-        }
-    });
 }
