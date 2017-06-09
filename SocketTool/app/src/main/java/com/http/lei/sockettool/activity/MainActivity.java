@@ -14,8 +14,8 @@ public class MainActivity extends AppCompatActivity {
 
     TextView tvShow;
     Button btnShow;
-    int PORT = 8080;
-    String HOST="";
+    int PORT = 12345;
+    String HOST="192.168.31.237";
 
 
     @Override
